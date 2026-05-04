@@ -1,0 +1,137 @@
+﻿using System;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Windows.Forms;
+using EmarketApp.DAL;
+
+namespace EmarketApp.Forms
+{
+    public class FrmLogin : Form
+    {
+        TextBox txtKullanici;
+        TextBox txtSifre;
+        Button btnGiris;
+
+        public FrmLogin()
+        {
+            TasarimOlustur();
+        }
+
+        void TasarimOlustur()
+        {
+            this.Text = "Emarket Giriş";
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Size = new Size(460, 360);
+            this.BackColor = Color.Black;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+
+            Panel kart = new Panel();
+            kart.SetBounds(45, 35, 360, 260);
+            kart.BackColor = Color.FromArgb(28, 12, 52);
+            kart.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (Pen pen = new Pen(Color.FromArgb(120, 55, 255), 2))
+                {
+                    e.Graphics.DrawRectangle(pen, 0, 0, kart.Width - 1, kart.Height - 1);
+                }
+            };
+            this.Controls.Add(kart);
+
+            Label baslik = new Label();
+            baslik.Text = "EMARKET";
+            baslik.ForeColor = Color.White;
+            baslik.Font = new Font("Segoe UI", 24, FontStyle.Bold | FontStyle.Italic);
+            baslik.TextAlign = ContentAlignment.MiddleCenter;
+            baslik.SetBounds(0, 25, 360, 40);
+            kart.Controls.Add(baslik);
+
+            Label altBaslik = new Label();
+            altBaslik.Text = "Yönetim Paneli Girişi";
+            altBaslik.ForeColor = Color.FromArgb(180, 160, 220);
+            altBaslik.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+            altBaslik.TextAlign = ContentAlignment.MiddleCenter;
+            altBaslik.SetBounds(0, 65, 360, 25);
+            kart.Controls.Add(altBaslik);
+
+            txtKullanici = TextBoxOlustur(80, 105, "admin");
+            kart.Controls.Add(txtKullanici);
+
+            txtSifre = TextBoxOlustur(80, 145, "1234");
+            txtSifre.UseSystemPasswordChar = true;
+            kart.Controls.Add(txtSifre);
+
+            btnGiris = new Button();
+            btnGiris.Text = "Giriş Yap";
+            btnGiris.SetBounds(80, 195, 200, 38);
+            btnGiris.BackColor = Color.FromArgb(100, 44, 170);
+            btnGiris.ForeColor = Color.White;
+            btnGiris.FlatStyle = FlatStyle.Flat;
+            btnGiris.FlatAppearance.BorderColor = Color.White;
+            btnGiris.Font = new Font("Segoe UI", 10, FontStyle.Bold | FontStyle.Italic);
+            btnGiris.Cursor = Cursors.Hand;
+
+            btnGiris.MouseEnter += delegate
+            {
+                btnGiris.BackColor = Color.FromArgb(140, 70, 220);
+                btnGiris.FlatAppearance.BorderSize = 2;
+            };
+
+            btnGiris.MouseLeave += delegate
+            {
+                btnGiris.BackColor = Color.FromArgb(100, 44, 170);
+                btnGiris.FlatAppearance.BorderSize = 1;
+            };
+
+            btnGiris.Click += btnGiris_Click;
+            kart.Controls.Add(btnGiris);
+        }
+
+        TextBox TextBoxOlustur(int x, int y, string text)
+        {
+            TextBox txt = new TextBox();
+            txt.SetBounds(x, y, 200, 28);
+            txt.Text = text;
+            txt.BackColor = Color.FromArgb(18, 12, 30);
+            txt.ForeColor = Color.White;
+            txt.BorderStyle = BorderStyle.FixedSingle;
+            txt.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            return txt;
+        }
+
+        private void btnGiris_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (SqlConnection conn = new Db().conn)
+                {
+                    SqlCommand cmd = new SqlCommand(
+                        "SELECT COUNT(*) FROM PersonelTb WHERE Email=@k AND Telefon=@s", conn);
+
+                    cmd.Parameters.AddWithValue("@k", txtKullanici.Text.Trim());
+                    cmd.Parameters.AddWithValue("@s", txtSifre.Text.Trim());
+
+                    conn.Open();
+                    int sonuc = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    if (sonuc > 0)
+                    {
+                        FrmAnaPanel frm = new FrmAnaPanel();
+                        frm.Show();
+                        this.Hide();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Hatalı kullanıcı adı veya şifre.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Giriş hatası: " + ex.Message);
+            }
+        }
+    }
+}

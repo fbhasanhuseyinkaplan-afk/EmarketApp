@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A3FD7CA9-B951-4874-916E-E5A7D7A1E7B4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>EmarketApp</RootNamespace>
+    <AssemblyName>EmarketApp</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DAL\DashboardDAL.cs" />
+    <Compile Include="Forms\FrmAnaPanel2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmAnaPanel2.Designer.cs">
+      <DependentUpon>FrmAnaPanel2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="DAL\Db.cs" />
+    <Compile Include="DAL\KategoriDAL.cs" />
+    <Compile Include="DAL\UrunDAL.cs" />
+    <Compile Include="DAL\MusteriDAL.cs" />
+    <Compile Include="DAL\PersonelDAL.cs" />
+    <Compile Include="DAL\SatisDAL.cs" />
+    <Compile Include="DAL\StokDAL.cs" />
+    <Compile Include="Entities\Kategori.cs" />
+    <Compile Include="Entities\Kampanya.cs" />
+    <Compile Include="Entities\Rol.cs" />
+    <Compile Include="Entities\Personel.cs" />
+    <Compile Include="Entities\Musteri.cs" />
+    <Compile Include="Entities\Urun.cs" />
+    <Compile Include="Entities\Fiyat.cs" />
+    <Compile Include="Entities\Stok.cs" />
+    <Compile Include="Entities\Satis.cs" />
+    <Compile Include="Entities\SatisDetay.cs" />
+    <Compile Include="Forms\FrmLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmUrunYonetim.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmSatis.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmStok.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmRapor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FrmSatis.resx">
+      <DependentUpon>FrmSatis.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
