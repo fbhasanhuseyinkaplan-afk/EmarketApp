@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+using System;
+using System.Data;
+using System.Drawing;
 using System.Windows.Forms;
 using EmarketApp.Service;
 
@@ -6,25 +8,37 @@ namespace EmarketApp.Forms
 {
     public class FrmRapor : Form
     {
-        DataGridView grid;
+        private readonly SatisService satisService = new SatisService();
+        private DataTable raporTable;
+        DataGridView grid; TextBox txtAra; Button btnListele, btnTemizle;
 
         public FrmRapor()
         {
-            this.BackColor = Color.FromArgb(245, 247, 250);
+            BackColor = Color.Black;
+            txtAra = new TextBox(); txtAra.SetBounds(25, 25, 260, 30); txtAra.TextChanged += (s, e) => Filtrele();
+            btnListele = new Button { Text = "Listele" }; btnListele.SetBounds(300, 25, 110, 30); btnListele.Click += (s, e) => Listele();
+            btnTemizle = new Button { Text = "Temizle" }; btnTemizle.SetBounds(420, 25, 110, 30); btnTemizle.Click += (s, e) => { txtAra.Clear(); Filtrele(); };
+            grid = new DataGridView { ReadOnly = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill }; grid.SetBounds(25, 75, 930, 600);
+            Controls.AddRange(new Control[] { txtAra, btnListele, btnTemizle, grid });
+            Load += (s, e) => Listele();
+        }
 
-            Label baslik = new Label();
-            baslik.Text = "Satış Raporları";
-            baslik.Font = new Font("Arial", 18, FontStyle.Bold);
-            baslik.SetBounds(25, 20, 300, 35);
-            this.Controls.Add(baslik);
+        void Listele()
+        {
+            try
+            {
+                raporTable = satisService.SatisListe();
+                grid.DataSource = raporTable;
+                if (grid.Columns.Contains("ToplamTutar")) grid.Columns["ToplamTutar"].HeaderText = "Toplam Tutar";
+                if (grid.Columns.Contains("SatisTarihi")) grid.Columns["SatisTarihi"].HeaderText = "Satış Tarihi";
+            }
+            catch (Exception ex) { MessageBox.Show("Rapor verisi alınamadı: " + ex.Message); }
+        }
 
-            grid = new DataGridView();
-            grid.SetBounds(25, 75, 900, 430);
-            grid.ReadOnly = true;
-            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            this.Controls.Add(grid);
-
-            this.Load += delegate { grid.DataSource = new SatisService().SatisListe(); };
+        void Filtrele()
+        {
+            if (raporTable == null) return;
+            raporTable.DefaultView.RowFilter = $"Convert(Musteri, 'System.String') LIKE '%{txtAra.Text.Replace("'", "''")}%'";
         }
     }
 }
