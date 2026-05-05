@@ -38,7 +38,8 @@ namespace EmarketApp.Forms
         void Filtrele()
         {
             if (stokTable == null) return;
-            stokTable.DefaultView.RowFilter = $"Convert(UrunAd, 'System.String') LIKE '%{txtAra.Text.Replace("'", "''")}%'";
+            string araMetni = txtAra.Text == null ? "" : txtAra.Text.Replace("'", "''");
+            stokTable.DefaultView.RowFilter = "Convert(UrunAd, 'System.String') LIKE '%" + araMetni + "%'";
         }
     }
 }

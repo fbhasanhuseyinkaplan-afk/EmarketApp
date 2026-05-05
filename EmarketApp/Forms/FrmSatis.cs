@@ -36,7 +36,9 @@ namespace EmarketApp.Forms
             btnSatisYap = Buton("Satışı Tamamla", 730, 26); btnSatisYap.Click += BtnSatisYap_Click;
             btnTemizle = Buton("Temizle", 260, 72); btnTemizle.Click += (s, e) => SepetTemizle();
 
-            var p = new Panel { BackColor = Color.FromArgb(32, 26, 46) }; p.SetBounds(30, 90, 920, 120);
+            Panel p = new Panel();
+            p.BackColor = Color.FromArgb(32, 26, 46);
+            p.SetBounds(30, 90, 920, 120);
             p.Controls.AddRange(new Control[] { comboUrun, comboMusteri, numAdet, txtAra, btnSepeteEkle, btnSatisYap, btnTemizle }); Controls.Add(p);
 
             gridSepet = new DataGridView { ReadOnly = true, AllowUserToAddRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill };
@@ -53,7 +55,16 @@ namespace EmarketApp.Forms
             lblToplam.SetBounds(720, 660, 230, 35); Controls.Add(lblToplam);
         }
 
-        Button Buton(string text, int x, int y) { var b = new Button { Text = text, BackColor = Color.FromArgb(100, 44, 170), ForeColor = Color.White, FlatStyle = FlatStyle.Flat }; b.SetBounds(x, y, 120, 35); return b; }
+        Button Buton(string text, int x, int y)
+        {
+            Button b = new Button();
+            b.Text = text;
+            b.BackColor = Color.FromArgb(100, 44, 170);
+            b.ForeColor = Color.White;
+            b.FlatStyle = FlatStyle.Flat;
+            b.SetBounds(x, y, 120, 35);
+            return b;
+        }
 
         void FrmSatis_Load(object sender, EventArgs e)
         {
@@ -65,7 +76,14 @@ namespace EmarketApp.Forms
             catch (Exception ex) { MessageBox.Show("Veri yüklenemedi: " + ex.Message); }
         }
 
-        void UrunFiltrele() { ((DataTable)comboUrun.DataSource).DefaultView.RowFilter = $"UrunAd LIKE '%{txtAra.Text.Replace("'", "''")}%"; }
+        void UrunFiltrele()
+        {
+            if (comboUrun.DataSource == null) return;
+            DataTable urunTable = comboUrun.DataSource as DataTable;
+            if (urunTable == null) return;
+            string araMetni = txtAra.Text == null ? "" : txtAra.Text.Replace("'", "''");
+            urunTable.DefaultView.RowFilter = "UrunAd LIKE '%" + araMetni + "%'";
+        }
 
         void BtnSepeteEkle_Click(object sender, EventArgs e)
         {
@@ -76,7 +94,7 @@ namespace EmarketApp.Forms
                 decimal fiyat = urunService.SonFiyatGetir(urunId); if (fiyat <= 0) { MessageBox.Show("Ürün fiyatı bulunamadı."); return; }
                 decimal toplam = fiyat * adet;
                 gridSepet.Rows.Add(urunId, comboUrun.Text, adet, fiyat.ToString("N2"), toplam.ToString("N2"));
-                genelToplam += toplam; lblToplam.Text = $"Toplam: ₺{genelToplam:N2}";
+                genelToplam += toplam; lblToplam.Text = string.Format("Toplam: ₺{0:N2}", genelToplam);
             }
             catch (Exception ex) { MessageBox.Show("Sepete ekleme hatası: " + ex.Message); }
         }
