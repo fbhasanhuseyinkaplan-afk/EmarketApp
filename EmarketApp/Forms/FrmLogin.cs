@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using EmarketApp.DAL;
+using EmarketApp.Service;
 
 namespace EmarketApp.Forms
 {
@@ -105,27 +104,18 @@ namespace EmarketApp.Forms
         {
             try
             {
-                using (SqlConnection conn = new Db().conn)
+                AuthService authService = new AuthService();
+                bool girisBasarili = authService.GirisBasariliMi(txtKullanici.Text, txtSifre.Text);
+
+                if (girisBasarili)
                 {
-                    SqlCommand cmd = new SqlCommand(
-                        "SELECT COUNT(*) FROM PersonelTb WHERE Email=@k AND Telefon=@s", conn);
-
-                    cmd.Parameters.AddWithValue("@k", txtKullanici.Text.Trim());
-                    cmd.Parameters.AddWithValue("@s", txtSifre.Text.Trim());
-
-                    conn.Open();
-                    int sonuc = Convert.ToInt32(cmd.ExecuteScalar());
-
-                    if (sonuc > 0)
-                    {
-                        FrmAnaPanel frm = new FrmAnaPanel();
-                        frm.Show();
-                        this.Hide();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Hatalı kullanıcı adı veya şifre.");
-                    }
+                    FrmAnaPanel frm = new FrmAnaPanel();
+                    frm.Show();
+                    this.Hide();
+                }
+                else
+                {
+                    MessageBox.Show("Hatalı kullanıcı adı veya şifre.");
                 }
             }
             catch (Exception ex)

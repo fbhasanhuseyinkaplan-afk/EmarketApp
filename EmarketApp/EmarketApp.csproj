@@ -37,6 +37,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAL\DashboardDAL.cs" />
+    <Compile Include="Service\AuthService.cs" />
+    <Compile Include="Service\DashboardService.cs" />
+    <Compile Include="Service\KategoriService.cs" />
+    <Compile Include="Service\MusteriService.cs" />
+    <Compile Include="Service\SatisService.cs" />
+    <Compile Include="Service\StokService.cs" />
+    <Compile Include="Service\UrunService.cs" />
     <Compile Include="Forms\FrmAnaPanel2.cs">
       <SubType>Form</SubType>
     </Compile>

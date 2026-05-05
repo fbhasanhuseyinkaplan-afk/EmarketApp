@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using EmarketApp.DAL;
+using EmarketApp.Service;
 
 namespace EmarketApp.Forms
 {
@@ -12,8 +12,8 @@ namespace EmarketApp.Forms
         Button btnEkle, btnSil, btnGuncelle;
         DataGridView grid;
 
-        KategoriDAL kdal = new KategoriDAL();
-        UrunDAL udal = new UrunDAL();
+        KategoriService kategoriService = new KategoriService();
+        UrunService urunService = new UrunService();
 
         public FrmUrunYonetim()
         {
@@ -152,7 +152,7 @@ namespace EmarketApp.Forms
 
         private void FrmUrunYonetim_Load(object sender, EventArgs e)
         {
-            comboKategori.DataSource = kdal.Liste();
+            comboKategori.DataSource = kategoriService.Liste();
             comboKategori.DisplayMember = "KategoriAdi";
             comboKategori.ValueMember = "KategoriID";
 
@@ -161,7 +161,7 @@ namespace EmarketApp.Forms
 
         void Listele()
         {
-            grid.DataSource = udal.Liste();
+            grid.DataSource = urunService.Liste();
 
             if (grid.Columns.Contains("EklenmeTarihi"))
                 grid.Columns["EklenmeTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
@@ -177,7 +177,7 @@ namespace EmarketApp.Forms
                     return;
                 }
 
-                udal.Ekle(txtUrunAdi.Text.Trim(), Convert.ToInt32(comboKategori.SelectedValue));
+                urunService.Ekle(txtUrunAdi.Text.Trim(), Convert.ToInt32(comboKategori.SelectedValue));
                 Listele();
                 txtUrunAdi.Clear();
 
@@ -216,7 +216,7 @@ namespace EmarketApp.Forms
 
                 int id = Convert.ToInt32(grid.CurrentRow.Cells["UrunID"].Value);
 
-                udal.Guncelle(id, txtUrunAdi.Text.Trim(), Convert.ToInt32(comboKategori.SelectedValue));
+                urunService.Guncelle(id, txtUrunAdi.Text.Trim(), Convert.ToInt32(comboKategori.SelectedValue));
                 Listele();
                 txtUrunAdi.Clear();
 
@@ -250,7 +250,7 @@ namespace EmarketApp.Forms
 
                 int id = Convert.ToInt32(grid.CurrentRow.Cells["UrunID"].Value);
 
-                udal.Sil(id);
+                urunService.Sil(id);
                 Listele();
                 txtUrunAdi.Clear();
 

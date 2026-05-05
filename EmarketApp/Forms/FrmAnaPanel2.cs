@@ -3,7 +3,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using EmarketApp.DAL;
+using EmarketApp.Service;
 using System.Data;
 
 namespace EmarketApp.Forms
@@ -190,17 +190,17 @@ namespace EmarketApp.Forms
             panelContainer.Controls.Clear();
 
             DashboardPanel dash = new DashboardPanel();
-            DashboardDAL ddal = new DashboardDAL();
+            DashboardService dashboardService = new DashboardService();
 
-            dash.ToplamCiro = ddal.ToplamCiro();
-            dash.ToplamSiparis = ddal.ToplamSiparis();
-            dash.ToplamUrun = ddal.ToplamUrun();
-            dash.ToplamMusteri = ddal.ToplamMusteri();
-            dash.SonSiparislerTable = ddal.SonSiparisler();
-            dash.EnCokSatanTable = ddal.EnCokSatanUrunler();
-            dash.ToplamSatisAdet = ddal.ToplamSatisDetayAdet();
-            dash.KategoriOranTable = ddal.KategoriSatisOranlari();
-            dash.GunlukSatisTable = ddal.Son7GunSatis();
+            dash.ToplamCiro = dashboardService.ToplamCiro();
+            dash.ToplamSiparis = dashboardService.ToplamSiparis();
+            dash.ToplamUrun = dashboardService.ToplamUrun();
+            dash.ToplamMusteri = dashboardService.ToplamMusteri();
+            dash.SonSiparislerTable = dashboardService.SonSiparisler();
+            dash.EnCokSatanTable = dashboardService.EnCokSatanUrunler();
+            dash.ToplamSatisAdet = dashboardService.ToplamSatisDetayAdet();
+            dash.KategoriOranTable = dashboardService.KategoriSatisOranlari();
+            dash.GunlukSatisTable = dashboardService.Son7GunSatis();
             dash.Dock = DockStyle.Fill;
             dash.BackColor = Color.Black;
             panelContainer.Controls.Add(dash);
