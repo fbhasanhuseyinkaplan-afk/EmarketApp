@@ -104,8 +104,14 @@ namespace EmarketApp.Forms
         {
             try
             {
+                if (txtKullanici.Text.Trim() == "" || txtSifre.Text.Trim() == "")
+                {
+                    MessageBox.Show("Kullanıcı adı ve şifre alanları boş bırakılamaz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 AuthService authService = new AuthService();
-                bool girisBasarili = authService.GirisBasariliMi(txtKullanici.Text, txtSifre.Text);
+                bool girisBasarili = authService.GirisBasariliMi(txtKullanici.Text.Trim(), txtSifre.Text.Trim());
 
                 if (girisBasarili)
                 {
@@ -115,12 +121,12 @@ namespace EmarketApp.Forms
                 }
                 else
                 {
-                    MessageBox.Show("Hatalı kullanıcı adı veya şifre.");
+                    MessageBox.Show("Giriş başarısız. Kullanıcı adı veya şifre hatalı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Giriş hatası: " + ex.Message);
+                MessageBox.Show("Giriş işlemi sırasında hata oluştu: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

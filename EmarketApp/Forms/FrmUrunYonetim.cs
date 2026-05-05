@@ -142,40 +142,42 @@ namespace EmarketApp.Forms
         {
             try
             {
-                if (txtUrunAdi.Text.Trim() == "") { MessageBox.Show("Ürün adı boş olamaz."); return; }
+                if (txtUrunAdi.Text.Trim() == "") { MessageBox.Show("Ürün adı boş bırakılamaz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                if (comboKategori.SelectedValue == null) { MessageBox.Show("Lütfen kategori seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 urunService.Ekle(txtUrunAdi.Text.Trim(), Convert.ToInt32(comboKategori.SelectedValue));
-                Listele(); txtUrunAdi.Clear(); MessageBox.Show("Ürün eklendi.");
+                Listele(); txtUrunAdi.Clear(); comboKategori.SelectedIndex = -1; MessageBox.Show("Ürün başarıyla eklendi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Ürün ekleme işlemi başarısız: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         private void btnGuncelle_Click(object sender, EventArgs e)
         {
             try
             {
-                if (grid.CurrentRow == null) { MessageBox.Show("Ürün seç."); return; }
-                if (txtUrunAdi.Text.Trim() == "") { MessageBox.Show("Ürün adı boş olamaz."); return; }
+                if (grid.CurrentRow == null) { MessageBox.Show("Güncellenecek ürün seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                if (txtUrunAdi.Text.Trim() == "") { MessageBox.Show("Ürün adı boş bırakılamaz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                if (comboKategori.SelectedValue == null) { MessageBox.Show("Lütfen kategori seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 string eskiAd = grid.CurrentRow.Cells["UrunAd"].Value.ToString();
                 string eskiKategori = grid.CurrentRow.Cells["KategoriAdi"].Value.ToString();
-                if (eskiAd == txtUrunAdi.Text.Trim() && eskiKategori == comboKategori.Text) { MessageBox.Show("Hiçbir değişiklik yapılmadı."); return; }
+                if (eskiAd == txtUrunAdi.Text.Trim() && eskiKategori == comboKategori.Text) { MessageBox.Show("Güncellenecek bir değişiklik bulunamadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
                 int id = Convert.ToInt32(grid.CurrentRow.Cells["UrunID"].Value);
                 urunService.Guncelle(id, txtUrunAdi.Text.Trim(), Convert.ToInt32(comboKategori.SelectedValue));
-                Listele(); txtUrunAdi.Clear(); MessageBox.Show("Ürün güncellendi.");
+                Listele(); txtUrunAdi.Clear(); comboKategori.SelectedIndex = -1; MessageBox.Show("Ürün başarıyla güncellendi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Ürün güncelleme işlemi başarısız: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         private void btnSil_Click(object sender, EventArgs e)
         {
             try
             {
-                if (grid.CurrentRow == null) { MessageBox.Show("Silinecek ürün seç."); return; }
+                if (grid.CurrentRow == null) { MessageBox.Show("Silinecek ürün seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 DialogResult cevap = MessageBox.Show("Seçili ürünü silmek istiyor musun?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (cevap == DialogResult.No) return;
                 int id = Convert.ToInt32(grid.CurrentRow.Cells["UrunID"].Value);
-                urunService.Sil(id); Listele(); txtUrunAdi.Clear(); MessageBox.Show("Ürün silindi.");
+                urunService.Sil(id); Listele(); txtUrunAdi.Clear(); comboKategori.SelectedIndex = -1; MessageBox.Show("Ürün başarıyla silindi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Ürün silme işlemi başarısız: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         private void grid_CellClick(object sender, DataGridViewCellEventArgs e)
