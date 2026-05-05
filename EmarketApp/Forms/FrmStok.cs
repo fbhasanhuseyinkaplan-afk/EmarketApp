@@ -74,11 +74,18 @@ namespace EmarketApp.Forms
             {
                 stokTable = stokService.Liste();
                 grid.DataSource = stokTable;
+                if (grid.Columns.Contains("StokID")) grid.Columns["StokID"].HeaderText = "Stok No";
+                if (grid.Columns.Contains("UrunID")) grid.Columns["UrunID"].HeaderText = "Ürün No";
                 if (grid.Columns.Contains("UrunAd")) grid.Columns["UrunAd"].HeaderText = "Ürün Adı";
                 if (grid.Columns.Contains("Miktar")) grid.Columns["Miktar"].HeaderText = "Stok Miktarı";
+                if (grid.Columns.Contains("GuncellenmeTarihi"))
+                {
+                    grid.Columns["GuncellenmeTarihi"].HeaderText = "Güncellenme Tarihi";
+                    grid.Columns["GuncellenmeTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
+                }
                 lblBos.Visible = stokTable == null || stokTable.Rows.Count == 0;
             }
-            catch (Exception ex) { MessageBox.Show("Stok verisi alınamadı: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Stok verisi alınamadı: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         void Filtrele()

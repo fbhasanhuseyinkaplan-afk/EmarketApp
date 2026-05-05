@@ -41,11 +41,12 @@ namespace EmarketApp.Forms
             comboMusteri.SetBounds(286, 20, 260, 30); FrmStil.InputStili(comboMusteri);
             numAdet = new NumericUpDown { Minimum = 1, Maximum = 100, Value = 1 };
             numAdet.SetBounds(556, 20, 90, 30); FrmStil.InputStili(numAdet);
+            numAdet.KeyPress += NumAdet_KeyPress;
 
             txtAra = new TextBox(); txtAra.SetBounds(16, 66, 260, 30); FrmStil.InputStili(txtAra); txtAra.TextChanged += delegate { UrunFiltrele(); };
             btnSepeteEkle = FrmStil.Buton("＋ Sepete", 666, 17, 140); btnSepeteEkle.Click += BtnSepeteEkle_Click;
             btnSatisYap = FrmStil.Buton("✔ Satışı Tamamla", 816, 17, 150); btnSatisYap.Click += BtnSatisYap_Click;
-            btnTemizle = FrmStil.Buton("✕ Temizle", 286, 63, 120); btnTemizle.Click += delegate { SepetTemizle(); };
+            btnTemizle = FrmStil.Buton("✕ Temizle", 286, 63, 120); btnTemizle.Click += BtnTemizle_Click;
 
             p.Controls.AddRange(new Control[] { comboUrun, comboMusteri, numAdet, txtAra, btnSepeteEkle, btnSatisYap, btnTemizle }); Controls.Add(p);
 
@@ -96,31 +97,57 @@ namespace EmarketApp.Forms
         {
             try
             {
-                if (comboUrun.SelectedValue == null) { MessageBox.Show("Ürün seçiniz."); return; }
+                if (comboUrun.SelectedValue == null) { MessageBox.Show("Lütfen ürün seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 int urunId = Convert.ToInt32(comboUrun.SelectedValue); int adet = (int)numAdet.Value;
-                decimal fiyat = urunService.SonFiyatGetir(urunId); if (fiyat <= 0) { MessageBox.Show("Ürün fiyatı bulunamadı."); return; }
+                decimal fiyat = urunService.SonFiyatGetir(urunId); if (fiyat <= 0) { MessageBox.Show("Ürün fiyatı bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 decimal toplam = fiyat * adet;
                 gridSepet.Rows.Add(urunId, comboUrun.Text, adet, fiyat.ToString("N2"), toplam.ToString("N2"));
                 genelToplam += toplam; lblToplam.Text = string.Format("Toplam: ₺{0:N2}", genelToplam);
                 lblBos.Visible = gridSepet.Rows.Count == 0;
+                numAdet.Value = 1;
             }
-            catch (Exception ex) { MessageBox.Show("Sepete ekleme hatası: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Sepete ekleme işlemi başarısız: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         void BtnSatisYap_Click(object sender, EventArgs e)
         {
             try
             {
-                if (comboMusteri.SelectedValue == null || gridSepet.Rows.Count == 0) { MessageBox.Show("Müşteri seçin ve sepete ürün ekleyin."); return; }
+                if (comboMusteri.SelectedValue == null || gridSepet.Rows.Count == 0) { MessageBox.Show("Lütfen müşteri seçin ve sepete ürün ekleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 int satisId = satisService.SatisEkle(Convert.ToInt32(comboMusteri.SelectedValue), 1, genelToplam);
                 foreach (DataGridViewRow row in gridSepet.Rows)
                     satisService.SatisDetayEkle(satisId, Convert.ToInt32(row.Cells["UrunID"].Value), Convert.ToInt32(row.Cells["Adet"].Value), Convert.ToDecimal(row.Cells["Fiyat"].Value));
-                MessageBox.Show("Satış tamamlandı.");
+                MessageBox.Show("Satış işlemi başarıyla tamamlandı.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 SepetTemizle();
+                comboUrun.SelectedIndex = -1;
+                comboMusteri.SelectedIndex = -1;
+                txtAra.Clear();
             }
-            catch (Exception ex) { MessageBox.Show("Satış işlemi başarısız: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Satış işlemi başarısız: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         void SepetTemizle() { gridSepet.Rows.Clear(); genelToplam = 0; lblToplam.Text = "Toplam: ₺0"; lblBos.Visible = true; }
+
+        void BtnTemizle_Click(object sender, EventArgs e)
+        {
+            if (gridSepet.Rows.Count == 0)
+            {
+                SepetTemizle();
+                return;
+            }
+
+            DialogResult cevap = MessageBox.Show("Sepetteki tüm ürünler temizlensin mi?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (cevap == DialogResult.Yes)
+            {
+                SepetTemizle();
+                MessageBox.Show("Sepet temizlendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        void NumAdet_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+                e.Handled = true;
+        }
     }
 }

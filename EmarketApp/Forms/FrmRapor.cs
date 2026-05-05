@@ -72,12 +72,18 @@ namespace EmarketApp.Forms
             {
                 raporTable = satisService.SatisListe();
                 grid.DataSource = raporTable;
+                if (grid.Columns.Contains("SatisID")) grid.Columns["SatisID"].HeaderText = "Satış No";
+                if (grid.Columns.Contains("Personel")) grid.Columns["Personel"].HeaderText = "Personel";
                 if (grid.Columns.Contains("ToplamTutar")) grid.Columns["ToplamTutar"].HeaderText = "Toplam Tutar (₺)";
-                if (grid.Columns.Contains("SatisTarihi")) grid.Columns["SatisTarihi"].HeaderText = "Satış Tarihi";
+                if (grid.Columns.Contains("SatisTarihi"))
+                {
+                    grid.Columns["SatisTarihi"].HeaderText = "Satış Tarihi";
+                    grid.Columns["SatisTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
+                }
                 if (grid.Columns.Contains("Musteri")) grid.Columns["Musteri"].HeaderText = "Müşteri";
                 lblBos.Visible = raporTable == null || raporTable.Rows.Count == 0;
             }
-            catch (Exception ex) { MessageBox.Show("Rapor verisi alınamadı: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Rapor verisi alınamadı: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         void Filtrele()
