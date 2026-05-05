@@ -171,8 +171,9 @@ namespace EmarketApp.Forms
         void Filtrele()
         {
             if (grid.DataSource == null) return;
-            var dt = (System.Data.DataTable)grid.DataSource;
-            dt.DefaultView.RowFilter = $"UrunAd LIKE '%{txtAra.Text.Replace("'", "''")}%'";
+            System.Data.DataTable dt = (System.Data.DataTable)grid.DataSource;
+            string araMetni = txtAra.Text == null ? "" : txtAra.Text.Replace("'", "''");
+            dt.DefaultView.RowFilter = "UrunAd LIKE '%" + araMetni + "%'";
         }
 
         void Listele()
