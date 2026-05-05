@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
-using EmarketApp.DAL;
+using EmarketApp.Service;
 
 namespace EmarketApp.Forms
 {
@@ -24,7 +24,7 @@ namespace EmarketApp.Forms
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             this.Controls.Add(grid);
 
-            this.Load += delegate { grid.DataSource = new StokDAL().Liste(); };
+            this.Load += delegate { grid.DataSource = new StokService().Liste(); };
         }
     }
 }

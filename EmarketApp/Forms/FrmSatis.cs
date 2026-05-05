@@ -2,7 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using EmarketApp.DAL;
+using EmarketApp.Service;
 
 namespace EmarketApp.Forms
 {
@@ -13,9 +13,9 @@ namespace EmarketApp.Forms
         Button btnSepeteEkle, btnSatisYap;
         DataGridView gridSepet;
 
-        UrunDAL udal = new UrunDAL();
-        MusteriDAL mdal = new MusteriDAL();
-        SatisDAL sdal = new SatisDAL();
+        UrunService urunService = new UrunService();
+        MusteriService musteriService = new MusteriService();
+        SatisService satisService = new SatisService();
         Label lblToplam;
 
         decimal genelToplam = 0;
@@ -168,11 +168,11 @@ namespace EmarketApp.Forms
 
         private void FrmSatis_Load(object sender, EventArgs e)
         {
-            comboUrun.DataSource = udal.Liste();
+            comboUrun.DataSource = urunService.Liste();
             comboUrun.DisplayMember = "UrunAd";
             comboUrun.ValueMember = "UrunID";
 
-            comboMusteri.DataSource = mdal.Liste();
+            comboMusteri.DataSource = musteriService.Liste();
             comboMusteri.DisplayMember = "Musteri";
             comboMusteri.ValueMember = "MusteriID";
         }
