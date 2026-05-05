@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,214 +8,93 @@ namespace EmarketApp.Forms
 {
     public class FrmSatis : Form
     {
+        private readonly UrunService urunService = new UrunService();
+        private readonly MusteriService musteriService = new MusteriService();
+        private readonly SatisService satisService = new SatisService();
+
         ComboBox comboUrun, comboMusteri;
         NumericUpDown numAdet;
-        Button btnSepeteEkle, btnSatisYap;
+        TextBox txtAra;
+        Button btnSepeteEkle, btnSatisYap, btnTemizle;
         DataGridView gridSepet;
-
-        UrunService urunService = new UrunService();
-        MusteriService musteriService = new MusteriService();
-        SatisService satisService = new SatisService();
         Label lblToplam;
+        decimal genelToplam;
 
-        decimal genelToplam = 0;
-
-
-        
-
-        public FrmSatis()
-        {
-            TasarimOlustur();
-            this.Load += FrmSatis_Load;
-
-
-        }
+        public FrmSatis() { TasarimOlustur(); Load += FrmSatis_Load; }
 
         void TasarimOlustur()
         {
-            this.BackColor = Color.Black;
+            BackColor = Color.Black;
+            comboUrun = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            comboUrun.SetBounds(30, 30, 220, 30);
+            comboMusteri = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            comboMusteri.SetBounds(260, 30, 220, 30);
+            numAdet = new NumericUpDown { Minimum = 1, Maximum = 100, Value = 1 };
+            numAdet.SetBounds(490, 30, 80, 30);
+            txtAra = new TextBox(); txtAra.SetBounds(30, 75, 220, 30); txtAra.TextChanged += (s, e) => UrunFiltrele();
+            btnSepeteEkle = Buton("Sepete Ekle", 600, 26); btnSepeteEkle.Click += BtnSepeteEkle_Click;
+            btnSatisYap = Buton("Satışı Tamamla", 730, 26); btnSatisYap.Click += BtnSatisYap_Click;
+            btnTemizle = Buton("Temizle", 260, 72); btnTemizle.Click += (s, e) => SepetTemizle();
 
-            Label baslik = new Label();
-            baslik.Text = "Satış Ekranı";
-            baslik.ForeColor = Color.White;
-            baslik.Font = new Font("Segoe UI", 22, FontStyle.Bold | FontStyle.Italic);
-            baslik.SetBounds(30, 25, 300, 40);
-            this.Controls.Add(baslik);
+            var p = new Panel { BackColor = Color.FromArgb(32, 26, 46) }; p.SetBounds(30, 90, 920, 120);
+            p.Controls.AddRange(new Control[] { comboUrun, comboMusteri, numAdet, txtAra, btnSepeteEkle, btnSatisYap, btnTemizle }); Controls.Add(p);
 
-            Panel kart = new Panel();
-            kart.SetBounds(30, 90, 900, 150);
-            kart.BackColor = Color.FromArgb(32, 26, 46);
-            this.Controls.Add(kart);
-
-            comboUrun = ComboOlustur(30, 30);
-            comboMusteri = ComboOlustur(250, 30);
-
-            numAdet = new NumericUpDown();
-            numAdet.SetBounds(470, 30, 100, 28);
-            numAdet.Minimum = 1;
-            numAdet.Maximum = 100;
-            numAdet.BackColor = Color.FromArgb(18, 12, 30);
-            numAdet.ForeColor = Color.White;
-            kart.Controls.Add(numAdet);
-
-            btnSepeteEkle = Buton("Sepete Ekle", 600, 25);
-            btnSatisYap = Buton("Satışı Tamamla", 750, 25);
-
-            kart.Controls.Add(comboUrun);
-            kart.Controls.Add(comboMusteri);
-            kart.Controls.Add(btnSepeteEkle);
-            kart.Controls.Add(btnSatisYap);
-
-            btnSepeteEkle.Click += BtnSepeteEkle_Click;
-            btnSatisYap.Click += BtnSatisYap_Click;
-
-            gridSepet = new DataGridView();
-            gridSepet.SetBounds(30, 270, 900, 400);
-            gridSepet.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            gridSepet.BackgroundColor = Color.FromArgb(20, 16, 32);
-            gridSepet.ForeColor = Color.White;
-            gridSepet.EnableHeadersVisualStyles = false;
-
-            gridSepet.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(45, 20, 75);
-            gridSepet.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-
+            gridSepet = new DataGridView { ReadOnly = true, AllowUserToAddRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill };
+            gridSepet.SetBounds(30, 230, 920, 420);
+            gridSepet.Columns.Add("UrunID", "Ürün ID");
             gridSepet.Columns.Add("Urun", "Ürün");
             gridSepet.Columns.Add("Adet", "Adet");
-            gridSepet.Columns.Add("Fiyat", "Fiyat");
+            gridSepet.Columns.Add("Fiyat", "Birim Fiyat");
             gridSepet.Columns.Add("Toplam", "Toplam");
+            gridSepet.Columns[0].Visible = false;
+            Controls.Add(gridSepet);
 
-            gridSepet.DefaultCellStyle.BackColor = Color.FromArgb(30, 24, 45);
-            gridSepet.DefaultCellStyle.ForeColor = Color.White;
-            gridSepet.DefaultCellStyle.SelectionBackColor = Color.FromArgb(100, 44, 170);
-            gridSepet.DefaultCellStyle.SelectionForeColor = Color.White;
+            lblToplam = new Label { ForeColor = Color.Lime, Font = new Font("Segoe UI", 14, FontStyle.Bold), Text = "Toplam: ₺0" };
+            lblToplam.SetBounds(720, 660, 230, 35); Controls.Add(lblToplam);
+        }
 
-            gridSepet.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(24, 18, 38);
-            gridSepet.AlternatingRowsDefaultCellStyle.ForeColor = Color.White;
+        Button Buton(string text, int x, int y) { var b = new Button { Text = text, BackColor = Color.FromArgb(100, 44, 170), ForeColor = Color.White, FlatStyle = FlatStyle.Flat }; b.SetBounds(x, y, 120, 35); return b; }
 
-            gridSepet.RowHeadersDefaultCellStyle.BackColor = Color.FromArgb(30, 24, 45);
-            gridSepet.RowHeadersDefaultCellStyle.ForeColor = Color.White;
-
-            gridSepet.RowsDefaultCellStyle.BackColor = Color.FromArgb(30, 24, 45);
-            gridSepet.RowsDefaultCellStyle.ForeColor = Color.White;
-
-            gridSepet.GridColor = Color.FromArgb(70, 60, 95);
-            gridSepet.BorderStyle = BorderStyle.None;
-            gridSepet.RowTemplate.Height = 32;
-            gridSepet.DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-
-            this.Controls.Add(gridSepet);
-            gridSepet.MouseDown += (s, e) =>
+        void FrmSatis_Load(object sender, EventArgs e)
+        {
+            try
             {
-                if (e.Button == MouseButtons.Right)
-                {
-                    var hit = gridSepet.HitTest(e.X, e.Y);
-
-                    if (hit.RowIndex >= 0)
-                    {
-                        gridSepet.ClearSelection();
-                        gridSepet.Rows[hit.RowIndex].Selected = true;
-
-                        ContextMenu cm = new ContextMenu();
-                        cm.MenuItems.Add("Sil", (sender, ev) =>
-                        {
-                            decimal satirToplam = Convert.ToDecimal(gridSepet.Rows[hit.RowIndex].Cells["Toplam"].Value);
-                            genelToplam -= satirToplam;
-
-                            gridSepet.Rows.RemoveAt(hit.RowIndex);
-
-                            lblToplam.Text = "Toplam: ₺" + genelToplam;
-                        });
-
-                        cm.Show(gridSepet, new Point(e.X, e.Y));
-                    }
-                }
-            };
-
-
-
-            lblToplam = new Label();
-            lblToplam.ForeColor = Color.Lime;
-            lblToplam.Font = new Font("Segoe UI", 14, FontStyle.Bold);
-            lblToplam.Text = "Toplam: ₺0";
-            lblToplam.SetBounds(700, 580, 250, 40);
-            this.Controls.Add(lblToplam);
-
-
-        }
-
-
-
-        ComboBox ComboOlustur(int x, int y)
-        {
-            ComboBox combo = new ComboBox();
-            combo.SetBounds(x, y, 200, 28);
-            combo.BackColor = Color.FromArgb(18, 12, 30);
-            combo.ForeColor = Color.White;
-            combo.FlatStyle = FlatStyle.Flat;
-            return combo;
-        }
-
-        Button Buton(string text, int x, int y)
-        {
-            Button btn = new Button();
-            btn.Text = text;
-            btn.SetBounds(x, y, 130, 38);
-            btn.BackColor = Color.FromArgb(100, 44, 170);
-            btn.ForeColor = Color.White;
-            btn.FlatStyle = FlatStyle.Flat;
-            return btn;
-        }
-
-        private void FrmSatis_Load(object sender, EventArgs e)
-        {
-            comboUrun.DataSource = urunService.Liste();
-            comboUrun.DisplayMember = "UrunAd";
-            comboUrun.ValueMember = "UrunID";
-
-            comboMusteri.DataSource = musteriService.Liste();
-            comboMusteri.DisplayMember = "Musteri";
-            comboMusteri.ValueMember = "MusteriID";
-        }
-
-        private void BtnSepeteEkle_Click(object sender, EventArgs e)
-        {
-            decimal fiyat = 100; 
-            int adet = (int)numAdet.Value;
-            decimal toplam = fiyat * adet;
-
-            gridSepet.Rows.Add(comboUrun.Text, adet, fiyat, toplam);
-
-            genelToplam += toplam;
-            lblToplam.Text = "Toplam: ₺" + genelToplam;
-        }
-
-        private void BtnSatisYap_Click(object sender, EventArgs e)
-        {
-            if (gridSepet.Rows.Count == 0)
-            {
-                MessageBox.Show("Sepet boş.");
-                return;
+                comboUrun.DataSource = urunService.Liste(); comboUrun.DisplayMember = "UrunAd"; comboUrun.ValueMember = "UrunID";
+                comboMusteri.DataSource = musteriService.Liste(); comboMusteri.DisplayMember = "Musteri"; comboMusteri.ValueMember = "MusteriID";
             }
-
-            MessageBox.Show("Satış tamamlandı: ₺" + genelToplam);
-
-            gridSepet.Rows.Clear();
-            genelToplam = 0;
-
+            catch (Exception ex) { MessageBox.Show("Veri yüklenemedi: " + ex.Message); }
         }
 
-        private void InitializeComponent()
+        void UrunFiltrele() { ((DataTable)comboUrun.DataSource).DefaultView.RowFilter = $"UrunAd LIKE '%{txtAra.Text.Replace("'", "''")}%"; }
+
+        void BtnSepeteEkle_Click(object sender, EventArgs e)
         {
-            this.SuspendLayout();
-            // 
-            // FrmSatis
-            // 
-            this.ClientSize = new System.Drawing.Size(377, 322);
-            this.Name = "FrmSatis";
-            this.ResumeLayout(false);
-
+            try
+            {
+                if (comboUrun.SelectedValue == null) { MessageBox.Show("Ürün seçiniz."); return; }
+                int urunId = Convert.ToInt32(comboUrun.SelectedValue); int adet = (int)numAdet.Value;
+                decimal fiyat = urunService.SonFiyatGetir(urunId); if (fiyat <= 0) { MessageBox.Show("Ürün fiyatı bulunamadı."); return; }
+                decimal toplam = fiyat * adet;
+                gridSepet.Rows.Add(urunId, comboUrun.Text, adet, fiyat.ToString("N2"), toplam.ToString("N2"));
+                genelToplam += toplam; lblToplam.Text = $"Toplam: ₺{genelToplam:N2}";
+            }
+            catch (Exception ex) { MessageBox.Show("Sepete ekleme hatası: " + ex.Message); }
         }
 
+        void BtnSatisYap_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (comboMusteri.SelectedValue == null || gridSepet.Rows.Count == 0) { MessageBox.Show("Müşteri seçin ve sepete ürün ekleyin."); return; }
+                int satisId = satisService.SatisEkle(Convert.ToInt32(comboMusteri.SelectedValue), 1, genelToplam);
+                foreach (DataGridViewRow row in gridSepet.Rows)
+                    satisService.SatisDetayEkle(satisId, Convert.ToInt32(row.Cells["UrunID"].Value), Convert.ToInt32(row.Cells["Adet"].Value), Convert.ToDecimal(row.Cells["Fiyat"].Value));
+                MessageBox.Show("Satış tamamlandı.");
+                SepetTemizle();
+            }
+            catch (Exception ex) { MessageBox.Show("Satış işlemi başarısız: " + ex.Message); }
+        }
 
+        void SepetTemizle() { gridSepet.Rows.Clear(); genelToplam = 0; lblToplam.Text = "Toplam: ₺0"; }
     }
 }

@@ -9,7 +9,8 @@ namespace EmarketApp.Forms
     {
         TextBox txtUrunAdi;
         ComboBox comboKategori;
-        Button btnEkle, btnSil, btnGuncelle;
+        Button btnEkle, btnSil, btnGuncelle, btnTemizle;
+        TextBox txtAra;
         DataGridView grid;
 
         KategoriService kategoriService = new KategoriService();
@@ -65,14 +66,17 @@ namespace EmarketApp.Forms
             btnEkle = ButonOlustur("Ekle", 450, 35);
             btnGuncelle = ButonOlustur("Güncelle", 570, 35);
             btnSil = ButonOlustur("Sil", 710, 35);
+            btnTemizle = ButonOlustur("Temizle", 450, 82);
 
             kart.Controls.Add(btnEkle);
             kart.Controls.Add(btnGuncelle);
             kart.Controls.Add(btnSil);
+            kart.Controls.Add(btnTemizle);
 
             btnEkle.Click += btnEkle_Click;
             btnGuncelle.Click += btnGuncelle_Click;
             btnSil.Click += btnSil_Click;
+            btnTemizle.Click += (s,e)=> { txtUrunAdi.Clear(); comboKategori.SelectedIndex = -1; txtAra.Clear(); Listele(); };
 
             grid = new DataGridView();
             grid.SetBounds(30, 270, 900, 430);
@@ -100,6 +104,11 @@ namespace EmarketApp.Forms
 
             grid.CellClick += grid_CellClick;
             this.Controls.Add(grid);
+
+            txtAra = TextBoxOlustur(30, 240);
+            txtAra.Width = 260;
+            txtAra.TextChanged += (s,e)=>Filtrele();
+            this.Controls.Add(txtAra);
         }
 
         Label LabelOlustur(string text, int x, int y)
@@ -159,10 +168,19 @@ namespace EmarketApp.Forms
             Listele();
         }
 
+        void Filtrele()
+        {
+            if (grid.DataSource == null) return;
+            var dt = (System.Data.DataTable)grid.DataSource;
+            dt.DefaultView.RowFilter = $"UrunAd LIKE '%{txtAra.Text.Replace("'", "''")}%'";
+        }
+
         void Listele()
         {
             grid.DataSource = urunService.Liste();
 
+            if (grid.Columns.Contains("UrunAd")) grid.Columns["UrunAd"].HeaderText = "Ürün Adı";
+            if (grid.Columns.Contains("KategoriAdi")) grid.Columns["KategoriAdi"].HeaderText = "Kategori";
             if (grid.Columns.Contains("EklenmeTarihi"))
                 grid.Columns["EklenmeTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
         }
